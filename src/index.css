@@ -1,0 +1,121 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --color-navy-950: #0B1120;
+  --color-navy-900: #0F172A;
+  --color-navy-800: #1E293B;
+  --color-navy-700: #334155;
+  --color-navy-600: #475569;
+  --color-cyan-400: #22D3EE;
+  --color-cyan-500: #00E5FF;
+  --color-cyan-600: #0891B2;
+  --color-violet-400: #A78BFA;
+  --color-violet-500: #8B5CF6;
+  --color-violet-600: #7C3AED;
+  --font-space: 'Space Grotesk', sans-serif;
+  --font-inter: 'Inter', sans-serif;
+  --shadow-neon-cyan: 0 0 5px var(--color-cyan-500), 0 0 20px var(--color-cyan-500);
+  --shadow-neon-violet: 0 0 5px var(--color-violet-600), 0 0 20px var(--color-violet-600);
+}
+
+@layer base {
+  * {
+    @apply border-gray-700;
+  }
+  
+  body {
+    @apply bg-navy-950 text-gray-100 font-inter;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-space;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-navy-900 rounded-xl border border-navy-700 p-4;
+  }
+  
+  .card-hover {
+    @apply bg-navy-900 rounded-xl border border-navy-700 p-4 hover:border-cyan-500/50 hover:shadow-neon-cyan transition-all duration-300;
+  }
+  
+  .btn-primary {
+    @apply bg-cyan-500 hover:bg-cyan-400 text-navy-950 font-semibold px-4 py-2 rounded-lg transition-colors;
+  }
+  
+  .btn-secondary {
+    @apply bg-navy-800 hover:bg-navy-700 text-gray-200 px-4 py-2 rounded-lg border border-navy-700 transition-colors;
+  }
+  
+  .input-field {
+    @apply bg-navy-800 border border-navy-700 rounded-lg px-4 py-2 text-gray-100 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500;
+  }
+  
+  .sidebar-item {
+    @apply flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-cyan-400 hover:bg-navy-800/50 rounded-lg transition-all;
+  }
+  
+  .sidebar-item.active {
+    @apply text-cyan-400 bg-navy-800/50 border-l-2 border-cyan-500;
+  }
+  
+  .neon-text {
+    @apply text-cyan-400 drop-shadow-[0_0_8px_rgba(0,229,255,0.5)];
+  }
+  
+  .neon-border {
+    @apply border-cyan-500/50 shadow-[0_0_10px_rgba(0,229,255,0.2)];
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0B1120;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* Animation utilities */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(0, 229, 255, 0.5), 0 0 20px rgba(0, 229, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 10px rgba(0, 229, 255, 0.8), 0 0 30px rgba(0, 229, 255, 0.5);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out;
+}

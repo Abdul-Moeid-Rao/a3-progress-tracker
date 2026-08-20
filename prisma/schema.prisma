@@ -1,0 +1,242 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String
+  passwordHash  String?
+  image         String?
+  emailVerified DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  accounts      Account[]
+  sessions      Session[]
+  workoutPlans  WorkoutPlan[]
+  workoutSessions WorkoutSession[]
+  bodyMeasurements BodyMeasurement[]
+  verificationTokens VerificationToken[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model Exercise {
+  id            String   @id @default(cuid())
+  name          String
+  description   String   @db.Text
+  muscleGroups  String[]
+  type          ExerciseType
+  equipment     String[]
+  difficulty    Difficulty
+  instructions  String[]
+  tips          String[]
+  videoUrl      String?
+  imageUrl      String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  workoutPlanExercises WorkoutPlanExercise[]
+  exerciseSessions     ExerciseSession[]
+
+  @@map("exercises")
+}
+
+enum ExerciseType {
+  compound
+  isolation
+  cardio
+  bodyweight
+}
+
+enum Difficulty {
+  beginner
+  intermediate
+  advanced
+}
+
+model WorkoutPlan {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  description String?  @db.Text
+  isActive    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  days        WorkoutDay[]
+  workoutSessions WorkoutSession[]
+
+  @@map("workout_plans")
+}
+
+model WorkoutDay {
+  id              String   @id @default(cuid())
+  workoutPlanId   String
+  dayOfWeek       Int      // 0-6 (Sun-Sat)
+  name            String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  workoutPlan     WorkoutPlan       @relation(fields: [workoutPlanId], references: [id], onDelete: Cascade)
+  exercises       WorkoutPlanExercise[]
+
+  @@map("workout_days")
+}
+
+model WorkoutPlanExercise {
+  id              String   @id @default(cuid())
+  workoutDayId    String
+  exerciseId      String
+  sets            Int
+  reps            Int
+  weight          Float?
+  restSeconds     Int      @default(60)
+  order           Int
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  workoutDay      WorkoutDay @relation(fields: [workoutDayId], references: [id], onDelete: Cascade)
+  exercise        Exercise   @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@map("workout_plan_exercises")
+}
+
+model WorkoutSession {
+  id              String   @id @default(cuid())
+  userId          String
+  workoutPlanId   String?
+  workoutDayId    String?
+  name            String?
+  startTime       DateTime
+  endTime         DateTime?
+  duration        Int?     // in seconds
+  notes           String?  @db.Text
+  rating          Int?     // 1-5
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workoutPlan     WorkoutPlan?     @relation(fields: [workoutPlanId], references: [id], onDelete: SetNull)
+  workoutDay      WorkoutDay?      @relation(fields: [workoutDayId], references: [id], onDelete: SetNull)
+  exercises       ExerciseSession[]
+
+  @@map("workout_sessions")
+}
+
+model ExerciseSession {
+  id              String   @id @default(cuid())
+  workoutSessionId String
+  exerciseId      String
+  notes           String?  @db.Text
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  workoutSession  WorkoutSession @relation(fields: [workoutSessionId], references: [id], onDelete: Cascade)
+  exercise        Exercise       @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  sets            SetLog[]
+
+  @@map("exercise_sessions")
+}
+
+model SetLog {
+  id                String   @id @default(cuid())
+  exerciseSessionId String
+  setNumber         Int
+  reps              Int
+  weight            Float
+  rpe               Float?   // Rate of perceived exertion 1-10
+  isCompleted       Boolean  @default(false)
+  restSeconds       Int?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  exerciseSession   ExerciseSession @relation(fields: [exerciseSessionId], references: [id], onDelete: Cascade)
+
+  @@map("set_logs")
+}
+
+model BodyMeasurement {
+  id                  String   @id @default(cuid())
+  userId              String
+  date                DateTime
+  weight              Float?
+  bodyFatPercentage   Float?
+  chest               Float?
+  waist               Float?
+  hips                Float?
+  armLeft             Float?
+  armRight            Float?
+  thighLeft           Float?
+  thighRight          Float?
+  calfLeft            Float?
+  calfRight           Float?
+  shoulders           Float?
+  neck                Float?
+  notes               String?  @db.Text
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // Relations
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("body_measurements")
+}
