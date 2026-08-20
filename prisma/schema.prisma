@@ -26,7 +26,6 @@ model User {
   workoutPlans  WorkoutPlan[]
   workoutSessions WorkoutSession[]
   bodyMeasurements BodyMeasurement[]
-  verificationTokens VerificationToken[]
 
   @@map("users")
 }
@@ -133,6 +132,7 @@ model WorkoutDay {
   // Relations
   workoutPlan     WorkoutPlan       @relation(fields: [workoutPlanId], references: [id], onDelete: Cascade)
   exercises       WorkoutPlanExercise[]
+  workoutSessions WorkoutSession[]
 
   @@map("workout_days")
 }
