@@ -77,6 +77,10 @@ const config: Config = {
           950: '#083344',
         },
       },
+      boxShadow: {
+        'neon-cyan': '0 0 5px #00E5FF, 0 0 20px rgba(0, 229, 255, 0.4)',
+        'neon-violet': '0 0 5px #7C3AED, 0 0 20px rgba(124, 58, 237, 0.4)',
+      },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
